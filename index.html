@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="fr" x-data="app()" x-init="init()">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESOCITY - Connectez votre communauté</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
+        }
+        .custom-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .slider-container {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+        .form-container {
+            position: relative;
+            z-index: 3;
+        }
+        .form-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .tab-active {
+            position: relative;
+        }
+        .tab-active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #f97316;
+            border-radius: 3px;
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+        .page-transition {
+            transition: all 0.5s ease;
+        }
+        [x-cloak] { display: none !important; }
+        
+        /* Styles pour la fonctionnalité de recherche */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .search-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .search-item:hover {
+            background: #f9f9f9;
+        }
+        .search-item-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: #f97316;
+        }
+        .search-category {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Page de connexion/inscription (Page d'accueil dynamique) -->
+    <template x-if="!isLoggedIn">
+        <div class="slider-container">
+            <div class="slider">
+                <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1561501878-aabd62634533?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')"></div>
+                <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1567599759063-7f9d7b0a2c0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')"></div>
+                <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1561501900-3701fa6a0864?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')"></div>
+                <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1593692909680-1d8e3370a7a6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')"></div>
+            </div>
+            <div class="overlay"></div>
+            
+            <!-- Contenu principal - Formulaire de connexion/inscription -->
+            <div class="form-container flex items-center justify-center min-h-screen px-4">
+                <div class="w-full max-w-md">
+                    <div class="text-center mb-10 animate-fade-in">
+                        <div class="flex justify-center mb-4">
+                            <div class="bg-white p-3 rounded-full">
+                                <i class="fas fa-people-group text-3xl gradient-bg bg-clip-text text-transparent"></i>
+                            </div>
+                        </div>
+                        <h1 class="text-4xl font-bold text-white mb-2">RESOCITY</h1>
+                        <p class="text-gray-200">Connectez-vous à votre communauté locale</p>
+                    </div>
+                    
+                    <div class="form-card rounded-xl shadow-xl overflow-hidden animate-fade-in" style="animation-delay: 0.2s">
+                        <!-- Onglets Connexion/Inscription -->
+                        <div class="flex bg-white">
+                            <button @click="activeTab = 'login'" :class="{'tab-active text-gray-800': activeTab === 'login', 'text-gray-500': activeTab !== 'login'}" class="flex-1 py-4 font-semibold text-center">Connexion</button>
+                            <button @click="activeTab = 'signup'" :class="{'tab-active text-gray-800': activeTab === 'signup', 'text-gray-500': activeTab !== 'signup'}" class="flex-1 py-4 font-semibold text-center">Inscription</button>
+                        </div>
+                        
+                        <!-- Formulaire de Connexion -->
+                        <form x-show="activeTab === 'login'" @submit.prevent="login" class="p-6 bg-white">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="email">Email</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input x-model="loginEmail" type="email" id="email" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="votre@email.com" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="password">Mot de passe</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-gray-400"></i>
+                                    </div>
+                                    <input x-model="loginPassword" type="password" id="password" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center">
+                                    <input x-model="rememberMe" id="remember" type="checkbox" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded">
+                                    <label for="remember" class="ml-2 block text-sm text-gray-700">Se souvenir de moi</label>
+                                </div>
+                                <a href="#" class="text-sm text-orange-500 hover:text-orange-600">Mot de passe oublié?</a>
+                            </div>
+                            
+                            <button type="submit" class="btn-hover w-full gradient-bg text-white py-3 px-4 rounded-lg font-semibold transition duration-300">
+                                <span x-text="isLoading ? 'Connexion...' : 'Se connecter'"></span>
+                                <i x-show="isLoading" class="fas fa-spinner fa-spin ml-2"></i>
+                            </button>
+                            
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-600">Ou connectez-vous avec</p>
+                                <div class="flex justify-center mt-3 space-x-4">
+                                    <button type="button" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </button>
+                                    <button type="button" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center">
+                                        <i class="fab fa-google"></i>
+                                    </button>
+                                    <button type="button" class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
+                                        <i class="fab fa-apple"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Formulaire d'Inscription -->
+                        <form x-show="activeTab === 'signup'" @submit.prevent="signup" class="p-6 bg-white">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="name">Nom complet</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                    <input x-model="signupName" type="text" id="name" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Votre nom" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="signup-email">Email</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input x-model="signupEmail" type="email" id="signup-email" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="votre@email.com" required>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="password">Mot de passe</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-lock text-gray-400"></i>
+                                        </div>
+                                        <input x-model="signupPassword" type="password" id="signup-password" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="confirm-password">Confirmation</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-lock text-gray-400"></i>
+                                        </div>
+                                        <input x-model="signupConfirmPassword" type="password" id="confirm-password" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="neighborhood">Quartier</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                    </div>
+                                    <select x-model="signupNeighborhood" id="neighborhood" class="input-focus w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none appearance-none bg-white" required>
+                                        <option value="" disabled selected>Sélectionnez votre quartier</option>
+                                        <option>Plateau, Dakar</option>
+                                        <option>Mermoz, Dakar</option>
+                                        <option>Ouakam, Dakar</option>
+                                        <option>Fass, Dakar</option>
+                                        <option>Gueule Tapée, Dakar</option>
+                                        <option>Almadies, Dakar</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <div class="flex items-center">
+                                    <input x-model="termsAccepted" id="terms" type="checkbox" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded" required>
+                                    <label for="terms" class="ml-2 block text-sm text-gray-700">
+                                        J'accepte les <a href="#" class="text-orange-500 hover:underline">termes et conditions</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-hover w-full gradient-bg text-white py-3 px-4 rounded-lg font-semibold transition duration-300">
+                                <span x-text="isLoading ? 'Création du compte...' : 'S\'inscrire'"></span>
+                                <i x-show="isLoading" class="fas fa-spinner fa-spin ml-2"></i>
+                            </button>
+                            
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-600">En vous inscrivant, vous acceptez notre <a href="#" class="text-orange-500 hover:underline">Politique de confidentialité</a></p>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-8 text-center text-gray-200 animate-fade-in" style="animation-delay: 0.4s">
+                        <p>© 2025 RESOCITY. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Dashboard (affiché après connexion) -->
+    <template x-if="isLoggedIn">
+        <div class="page-transition">
+            <!-- Header -->
+            <header class="gradient-bg text-white sticky top-0 z-50">
+                <div class="container mx-auto px-4 py-3">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-people-group text-2xl"></i>
+                            <h1 class="text-xl font-bold">RESOCITY</h1>
+                        </div>
+                        
+                        <!-- Barre de recherche - Version desktop -->
+                        <div class="hidden md:flex flex-1 max-w-md mx-4 relative">
+                            <div class="relative w-full">
+                                <input 
+                                    type="text" 
+                                    placeholder="Rechercher dans le quartier..." 
+                                    class="w-full pl-10 pr-4 py-2 rounded-full text-gray-700 focus:outline-none"
+                                    x-model="searchQuery"
+                                    @input="performSearch"
+                                    @focus="showSearchResults = true"
+                                >
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                
+                                <!-- Résultats de recherche -->
+                                <div 
+                                    class="search-results" 
+                                    x-show="showSearchResults && searchResults.length > 0" 
+                                    @click.outside="showSearchResults = false"
+                                    x-cloak
+                                >
+                                    <template x-for="result in searchResults" :key="result.id">
+                                        <div class="search-item" @click="selectSearchResult(result)">
+                                            <div class="search-item-icon">
+                                                <i :class="result.icon"></i>
+                                            </div>
+                                            <div>
+                                                <div x-text="result.title"></div>
+                                                <div class="search-category" x-text="result.category"></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <button 
+                                class="ml-2 px-4 py-2 bg-white text-orange-500 rounded-full text-sm font-medium"
+                                @click="showAdvancedSearch = true"
+                            >
+                                <i class="fas fa-sliders-h mr-1"></i> Avancée
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <i class="fas fa-bell text-xl cursor-pointer" @click="notificationsOpen = !notificationsOpen"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                                
+                                <!-- Notifications Dropdown -->
+                                <div x-show="notificationsOpen" @click.outside="notificationsOpen = false" 
+                                    class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50" 
+                                    style="display: none;">
+                                    <div class="p-4 border-b">
+                                        <h3 class="font-semibold text-gray-800">Notifications</h3>
+                                    </div>
+                                    <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                                        <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                                            <div class="flex space-x-2">
+                                                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                                                    <i class="fas fa-user-plus text-orange-500"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium">Nouveau membre</p>
+                                                    <p class="text-xs text-gray-600">Moussa Diop vient de rejoindre le quartier</p>
+                                                    <p class="text-xs text-gray-400 mt-1">Il y a 10 min</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                                            <div class="flex space-x-2">
+                                                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                                                    <i class="fas fa-comment text-orange-500"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium">Nouveau commentaire</p>
+                                                    <p class="text-xs text-gray-600">Fatou a commenté votre publication</p>
+                                                    <p class="text-xs text-gray-400 mt-1">Il y a 45 min</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                                            <div class="flex space-x-2">
+                                                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                                                    <i class="fas fa-calendar-alt text-orange-500"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium">Événement à venir</p>
+                                                    <p class="text-xs text-gray-600">Nettoyage du quartier demain à 8h</p>
+                                                    <p class="text-xs text-gray-400 mt-1">Il y a 2 heures</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 text-center border-t">
+                                        <a href="#" class="text-orange-500 text-sm font-medium">Voir toutes les notifications</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden cursor-pointer" 
+                                    @click="profileMenuOpen = !profileMenuOpen">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-full h-full object-cover">
+                                </div>
+                                
+                                <!-- Profile Dropdown -->
+                                <div x-show="profileMenuOpen" @click.outside="profileMenuOpen = false" 
+                                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50" 
+                                    style="display: none;">
+                                    <div class="p-4 border-b">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">Aminata Diop</p>
+                                                <p class="text-xs text-gray-500">Plateau, Dakar</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="py-1">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-500">
+                                            <i class="fas fa-user mr-2"></i> Mon Profil
+                                        </a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-500">
+                                            <i class="fas fa-cog mr-2"></i> Paramètres
+                                        </a>
+                                        <a href="#" @click.prevent="logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-500">
+                                            <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="md:hidden" @click="mobileMenuOpen = !mobileMenuOpen">
+                                <i class="fas fa-bars text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Mobile Menu -->
+            <div x-show="mobileMenuOpen" class="md:hidden bg-white shadow-md" style="display: none;">
+                <div class="container mx-auto px-4 py-2 flex justify-around">
+                    <a href="#" class="flex flex-col items-center text-gray-700">
+                        <i class="fas fa-home"></i>
+                        <span class="text-xs">Accueil</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-700">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="text-xs">Quartier</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-700">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="text-xs">Événements</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-700">
+                        <i class="fas fa-newspaper"></i>
+                        <span class="text-xs">Annonces</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-700" @click.prevent="showMobileSearch = true">
+                        <i class="fas fa-search"></i>
+                        <span class="text-xs">Recherche</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="container mx-auto px-4 py-6">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <!-- Left Sidebar -->
+                    <div class="lg:w-1/4 space-y-4">
+                        <!-- User Profile Card -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">Aminata Diop</h3>
+                                    <p class="text-sm text-gray-600">Dakar, Plateau</p>
+                                </div>
+                            </div>
+                            <div class="border-t pt-3">
+                                <a href="#" class="flex items-center text-gray-700 hover:text-orange-500 mb-2">
+                                    <i class="fas fa-user mr-2"></i> Mon Profil
+                                </a>
+                                <a href="#" class="flex items-center text-gray-700 hover:text-orange-500 mb-2">
+                                    <i class="fas fa-cog mr-2"></i> Paramètres
+                                </a>
+                                <a href="#" @click.prevent="logout" class="flex items-center text-gray-700 hover:text-orange-500">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood Info -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2 text-orange-500"></i> Plateau, Dakar
+                            </h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Membres</span>
+                                    <span class="font-medium">1,245</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Événements ce mois</span>
+                                    <span class="font-medium">8</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Annonces actives</span>
+                                    <span class="font-medium">32</span>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-md text-sm font-medium transition duration-300">
+                                Inviter des voisins
+                            </button>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3">Actions rapides</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="flex flex-col items-center justify-center p-2 bg-gray-100 hover:bg-orange-50 rounded-md transition"
+                                        @click="showDonationModal = true">
+                                    <i class="fas fa-gift text-orange-500 mb-1"></i>
+                                    <span class="text-xs">Faire un don</span>
+                                </button>
+                                <button class="flex flex-col items-center justify-center p-2 bg-gray-100 hover:bg-orange-50 rounded-md transition"
+                                        @click="showEventModal = true">
+                                    <i class="fas fa-calendar-plus text-orange-500 mb-1"></i>
+                                    <span class="text-xs">Créer événement</span>
+                                </button>
+                                <button class="flex flex-col items-center justify-center p-2 bg-gray-100 hover:bg-orange-50 rounded-md transition"
+                                        @click="showSaleModal = true">
+                                    <i class="fas fa-tag text-orange-500 mb-1"></i>
+                                    <span class="text-xs">Vendre un objet</span>
+                                </button>
+                                <button class="flex flex-col items-center justify-center p-2 bg-gray-100 hover:bg-orange-50 rounded-md transition"
+                                        @click="showMobileSearch = true">
+                                    <i class="fas fa-search text-orange-500 mb-1"></i>
+                                    <span class="text-xs">Rechercher</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Local Businesses -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3">Commerces locaux</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-store text-orange-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium">Boulangerie Ndiaye</p>
+                                        <p class="text-xs text-gray-500">Rue 10, Plateau</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-utensils text-orange-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium">Restaurant Le Djolof</p>
+                                        <p class="text-xs text-gray-500">Avenue Blaise Diagne</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-cut text-orange-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium">Tailleur Moussa</p>
+                                        <p class="text-xs text-gray-500">Rue 14, Plateau</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 text-orange-500 hover:text-orange-600 text-sm font-medium">
+                                Voir tous <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Main Feed -->
+                    <div class="lg:w-2/4 space-y-4">
+                        <!-- Create Post -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-full h-full object-cover">
+                                </div>
+                                <input type="text" placeholder="Partagez quelque chose avec votre quartier..." 
+                                    class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                                    @click="showPostModal = true">
+                            </div>
+                            <div class="flex justify-between border-t pt-3">
+                                <button class="flex items-center text-gray-600 hover:text-orange-500 px-3 py-1 rounded-md"
+                                        @click="showPostModal = true">
+                                    <i class="fas fa-image mr-2"></i> Photo
+                                </button>
+                                <button class="flex items-center text-gray-600 hover:text-orange-500 px-3 py-1 rounded-md"
+                                        @click="showEventModal = true">
+                                    <i class="fas fa-calendar-alt mr-2"></i> Événement
+                                </button>
+                                <button class="flex items-center text-gray-600 hover:text-orange-500 px-3 py-1 rounded-md"
+                                        @click="showSaleModal = true">
+                                    <i class="fas fa-tag mr-2"></i> Annonce
+                                </button>
+                                <button class="flex items-center text-gray-600 hover:text-orange-500 px-3 py-1 rounded-md"
+                                        @click="showPostModal = true">
+                                    <i class="fas fa-question-circle mr-2"></i> Demande
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood Updates -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-semibold">Actualités du quartier</h3>
+                                <div class="flex space-x-2">
+                                    <button class="text-sm text-gray-600 hover:text-orange-500">Tout voir</button>
+                                    <button class="text-sm text-gray-600 hover:text-orange-500">Filtrer</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Post 1 -->
+                            <div class="post-card border-b pb-4 mb-4 hover:shadow-md transition duration-200 rounded-md p-2">
+                                <div class="flex items-start space-x-3 mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center space-x-1">
+                                            <h4 class="font-medium">Mamadou Ndiaye</h4>
+                                            <span class="text-xs text-gray-500">• Plateau</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Il y a 2 heures</p>
+                                    </div>
+                                </div>
+                                <p class="mb-3">Bonjour à tous, je cherche un bon électricien pour réparer un problème dans mon appartement. Des recommandations ? Merci d'avance !</p>
+                                <div class="flex justify-between text-sm text-gray-600">
+                                    <button class="flex items-center hover:text-orange-500" @click="toggleLike('post1')">
+                                        <i :class="{'fas text-orange-500': likedPosts.post1, 'far': !likedPosts.post1}" class="fa-thumbs-up mr-1"></i> 
+                                        <span x-text="likedPosts.post1 ? '13' : '12'"></span>
+                                    </button>
+                                    <button class="flex items-center hover:text-orange-500">
+                                        <i class="far fa-comment mr-1"></i> 5 commentaires
+                                    </button>
+                                    <button class="flex items-center hover:text-orange-500">
+                                        <i class="fas fa-share mr-1"></i> Partager
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Post 2 -->
+                            <div class="post-card border-b pb-4 mb-4 hover:shadow-md transition duration-200 rounded-md p-2">
+                                <div class="flex items-start space-x-3 mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                        <img src="https://randomuser.me/api/portraits/women/63.jpg" alt="Profile" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center space-x-1">
+                                            <h4 class="font-medium">Aïssatou Fall</h4>
+                                            <span class="text-xs text-gray-500">• Plateau</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Hier à 18:45</p>
+                                    </div>
+                                </div>
+                                <p class="mb-3">Je vends une table à manger en bois massif avec 4 chaises. Très bon état. Prix: 150 000 FCFA. Photos disponibles sur demande.</p>
+                                <div class="bg-gray-100 rounded-md p-3 mb-3">
+                                    <div class="flex items-center text-orange-500 mb-1">
+                                        <i class="fas fa-tag mr-2"></i>
+                                        <span class="font-medium">À vendre</span>
+                                    </div>
+                                    <p class="text-sm">Meubles • Plateau</p>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-600">
+                                    <button class="flex items-center hover:text-orange-500" @click="toggleLike('post2')">
+                                        <i :class="{'fas text-orange-500': likedPosts.post2, 'far': !likedPosts.post2}" class="fa-thumbs-up mr-1"></i> 
+                                        <span x-text="likedPosts.post2 ? '9' : '8'"></span>
+                                    </button>
+                                    <button class="flex items-center hover:text-orange-500">
+                                        <i class="far fa-comment mr-1"></i> 3 commentaires
+                                    </button>
+                                    <button class="flex items-center hover:text-orange-500">
+                                        <i class="fas fa-share mr-1"></i> Partager
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Post 3 -->
+                            <div class="post-card hover:shadow-md transition duration-200 rounded-md p-2">
+                                <div class="flex items-start space-x-3 mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Profile" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center space-x-1">
+                                            <h4 class="font-medium">Comité de Quartier</h4>
+                                            <span class="text-xs text-gray-500">• Plateau</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Avant-hier à 10:30</p>
+                                    </div>
+                                </div>
+                                <h4 class="font-medium mb-2">Nettoyage collectif du quartier ce samedi</h4>
+                                <p class="mb-3">Chers voisins, nous organisons un nettoyage collectif du quartier ce samedi de 8h à 12h. Rendez-vous à la place de l'Indépendance. Matériel fourni. Merci de votre participation !</p>
+                                <div class="bg-gray-100 rounded-md p-3 mb-3">
+                                    <div class="flex items-center text-orange-500 mb-1">
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        <span class="font-medium">Événement</span>
+                                    </div>
+                                    <div class="flex items-center text-sm mb-1">
+                                        <i class="far fa-clock mr-2"></i>
+                                        <span>Samedi 10 juin • 8h - 12h</span>
+                                    </div>
+                                    <div class="flex items-center text-sm">
+                                        <i class="fas fa-map-marker-alt mr-2"></i>
+                                        <span>Place de l'Indépendance, Plateau</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex -space-x-2">
+                                        <div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/women/63.jpg" alt="Profile" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">
+                                            +5
+                                        </div>
+                                    </div>
+                                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md text-sm">
+                                        Je participe
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar -->
+                    <div class="lg:w-1/4 space-y-4">
+                        <!-- Upcoming Events -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3">Événements à venir</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start space-x-2">
+                                    <div class="bg-orange-100 text-orange-500 rounded-md p-2 flex flex-col items-center">
+                                        <span class="font-bold text-lg">10</span>
+                                        <span class="text-xs">JUIN</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Nettoyage du quartier</p>
+                                        <p class="text-xs text-gray-500">8h - 12h • Place de l'Indépendance</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Détails</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <div class="bg-orange-100 text-orange-500 rounded-md p-2 flex flex-col items-center">
+                                        <span class="font-bold text-lg">15</span>
+                                        <span class="text-xs">JUIN</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Réunion des voisins</p>
+                                        <p class="text-xs text-gray-500">18h • Centre culturel</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Détails</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <div class="bg-orange-100 text-orange-500 rounded-md p-2 flex flex-col items-center">
+                                        <span class="font-bold text-lg">22</span>
+                                        <span class="text-xs">JUIN</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Marché solidaire</p>
+                                        <p class="text-xs text-gray-500">9h - 16h • Rue 14</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Détails</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 text-orange-500 hover:text-orange-600 text-sm font-medium">
+                                Voir tous les événements <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- Recent Announcements -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3">Annonces récentes</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-md overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Item" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Table à manger + 4 chaises</p>
+                                        <p class="text-xs text-gray-500">150 000 FCFA • Plateau</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Voir l'annonce</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-md overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Item" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Appareil photo vintage</p>
+                                        <p class="text-xs text-gray-500">75 000 FCFA • Plateau</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Voir l'annonce</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-md overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Item" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Livres divers à donner</p>
+                                        <p class="text-xs text-gray-500">Gratuit • Plateau</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Voir l'annonce</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 text-orange-500 hover:text-orange-600 text-sm font-medium">
+                                Voir toutes les annonces <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- Donation Points -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3">Points de dons</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-md overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Donation" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Banque alimentaire</p>
+                                        <p class="text-xs text-gray-500">Rue 12, Plateau • Ouvert 24/7</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Plus d'infos</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-md overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1589998059171-988d322dfad6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Donation" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Boîte à livres</p>
+                                        <p class="text-xs text-gray-500">Place de l'Indépendance • Accès libre</p>
+                                        <button class="text-orange-500 text-xs font-medium mt-1">Plus d'infos</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group Purchases -->
+                        <div class="bg-white rounded-lg shadow-md p-4">
+                            <h3 class="font-semibold mb-3">Achats groupés</h3>
+                            <div class="space-y-3">
+                                <div class="bg-orange-50 rounded-md p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <p class="font-medium text-sm">Fruits et légumes bio</p>
+                                        <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Nouveau</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-2">Commande groupée auprès d'un producteur local. Livraison prévue le 12 juin.</p>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center text-sm">
+                                            <i class="fas fa-users mr-1 text-orange-500"></i>
+                                            <span>8 participants</span>
+                                        </div>
+                                        <button class="text-orange-500 text-xs font-medium">Rejoindre</button>
+                                    </div>
+                                </div>
+                                <div class="bg-orange-50 rounded-md p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <p class="font-medium text-sm">Poisson frais</p>
+                                        <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Presque complet</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-2">Commande directe aux pêcheurs de Yoff. Livraison tous les vendredis.</p>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center text-sm">
+                                            <i class="fas fa-users mr-1 text-orange-500"></i>
+                                            <span>14/15 participants</span>
+                                        </div>
+                                        <button class="text-orange-500 text-xs font-medium">Rejoindre</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-gray-800 text-white py-8">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">RESOCITY</h3>
+                            <p class="text-gray-400 text-sm">Connectez-vous avec vos voisins, partagez des ressources et construisez une communauté plus forte ensemble.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-4">Navigation</h4>
+                            <ul class="space-y-2 text-sm text-gray-400">
+                                <li><a href="#" class="hover:text-orange-400">Accueil</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Mon Quartier</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Événements</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Annonces</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Messages</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-4">Ressources</h4>
+                            <ul class="space-y-2 text-sm text-gray-400">
+                                <li><a href="#" class="hover:text-orange-400">Centre d'aide</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Sécurité</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Confidentialité</a></li>
+                                <li><a href="#" class="hover:text-orange-400">Conditions</a></li>
+                                <li><a href="#" class="hover:text-orange-400">FAQ</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-4">Contact</h4>
+                            <ul class="space-y-2 text-sm text-gray-400">
+                                <li class="flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2 text-orange-400"></i>
+                                    Dakar, Sénégal
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-envelope mr-2 text-orange-400"></i>
+                                    contact@samaquartier.sn
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-phone mr-2 text-orange-400"></i>
+                                    +221 33 123 45 67
+                                </li>
+                            </ul>
+                            <div class="flex space-x-4 mt-4">
+                                <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-orange-500">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-orange-500">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-orange-500">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-700 mt-8 pt-6 text-sm text-gray-400 text-center">
+                        <p>© 2025 RESOCITY. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- Mobile Bottom Navigation -->
+            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg">
+                <div class="flex justify-around py-2">
+                    <a href="#" class="flex flex-col items-center text-orange-500">
+                        <i class="fas fa-home"></i>
+                        <span class="text-xs">Accueil</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-600">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="text-xs">Quartier</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-600" @click.prevent="showMobileSearch = true">
+                        <i class="fas fa-search"></i>
+                        <span class="text-xs">Recherche</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-600">
+                        <i class="fas fa-bell"></i>
+                        <span class="text-xs">Alertes</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center text-gray-600">
+                        <i class="fas fa-user"></i>
+                        <span class="text-xs">Profil</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Modals -->
+    <!-- Create Post Modal -->
+    <div x-show="showPostModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4" @click.outside="showPostModal = false">
+            <div class="p-4 border-b">
+                <h3 class="font-semibold text-lg">Créer une publication</h3>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h4 class="font-medium">Aminata Diop</h4>
+                        <p class="text-xs text-gray-500">Plateau, Dakar</p>
+                    </div>
+                </div>
+                <textarea class="w-full h-32 border rounded-md p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-orange-200" 
+                          placeholder="Quoi de neuf dans votre quartier ?"></textarea>
+                <div class="flex justify-between mb-4">
+                    <button class="text-orange-500 hover:text-orange-600">
+                        <i class="fas fa-image mr-1"></i> Photo
+                    </button>
+                    <button class="text-orange-500 hover:text-orange-600">
+                        <i class="fas fa-map-marker-alt mr-1"></i> Localisation
+                    </button>
+                    <button class="text-orange-500 hover:text-orange-600">
+                        <i class="fas fa-user-tag mr-1"></i> Personnes
+                    </button>
+                </div>
+                <div class="flex justify-end">
+                    <button @click="showPostModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800 mr-2">Annuler</button>
+                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md">Publier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div x-show="showEventModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4" @click.outside="showEventModal = false">
+            <div class="p-4 border-b">
+                <h3 class="font-semibold text-lg">Créer un événement</h3>
+            </div>
+            <div class="p-4">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Nom de l'événement</label>
+                    <input type="text" class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Date et heure</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="date" class="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                        <input type="time" class="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Lieu</label>
+                    <input type="text" class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <textarea class="w-full h-24 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button @click="showEventModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800 mr-2">Annuler</button>
+                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md">Créer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div x-show="showSaleModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4" @click.outside="showSaleModal = false">
+            <div class="p-4 border-b">
+                <h3 class="font-semibold text-lg">Vendre un objet</h3>
+            </div>
+            <div class="p-4">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Titre de l'annonce</label>
+                    <input type="text" class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Catégorie</label>
+                    <select class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                        <option>Meubles</option>
+                        <option>Électronique</option>
+                        <option>Vêtements</option>
+                        <option>Livres</option>
+                        <option>Autre</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Prix (FCFA)</label>
+                    <input type="number" class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <textarea class="w-full h-24 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Photos</label>
+                    <div class="border-2 border-dashed rounded-md p-6 text-center">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-500">Glissez-déposez vos photos ici</p>
+                        <p class="text-xs text-gray-400 mt-1">ou</p>
+                        <button class="text-orange-500 text-sm font-medium mt-1">Parcourir</button>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button @click="showSaleModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800 mr-2">Annuler</button>
+                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md">Publier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donation Modal -->
+    <div x-show="showDonationModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4" @click.outside="showDonationModal = false">
+            <div class="p-4 border-b">
+                <h3 class="font-semibold text-lg">Faire un don</h3>
+            </div>
+            <div class="p-4">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Sélectionnez un point de collecte</label>
+                    <select class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                        <option>Banque alimentaire - Rue 12, Plateau</option>
+                        <option>Boîte à livres - Place de l'Indépendance</option>
+                        <option>Collecte de vêtements - Centre culturel</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Type de don</label>
+                    <select class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200">
+                        <option>Nourriture</option>
+                        <option>Vêtements</option>
+                        <option>Livres</option>
+                        <option>Jouets</option>
+                        <option>Autre</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Description des articles</label>
+                    <textarea class="w-full h-24 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200" 
+                              placeholder="Décrivez ce que vous souhaitez donner"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button @click="showDonationModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800 mr-2">Annuler</button>
+                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Search Modal -->
+    <div x-show="showMobileSearch" x-cloak class="fixed inset-0 bg-white z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center mb-6">
+                <button class="text-gray-600 mr-3" @click="showMobileSearch = false">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h2 class="text-xl font-bold">Recherche</h2>
+            </div>
+            
+            <div class="mb-6">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher dans le quartier..." 
+                        class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                        x-model="searchQuery"
+                        @input="performSearch"
+                    >
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                
+                <button 
+                    class="mt-3 w-full flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg font-medium"
+                    @click="showAdvancedSearch = true"
+                >
+                    <i class="fas fa-sliders-h mr-2"></i> Recherche avancée
+                </button>
+            </div>
+            
+            <div x-show="searchResults.length > 0">
+                <h3 class="font-semibold mb-3">Résultats de recherche</h3>
+                <div class="space-y-3">
+                    <template x-for="result in searchResults" :key="result.id">
+                        <div class="bg-gray-50 rounded-lg p-3 flex items-start" @click="selectSearchResult(result)">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 mr-3">
+                                <i :class="result.icon"></i>
+                            </div>
+                            <div>
+                                <div x-text="result.title" class="font-medium"></div>
+                                <div class="text-xs text-gray-500" x-text="result.category"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            
+            <div x-show="searchResults.length === 0 && searchQuery.length > 2" class="text-center py-10">
+                <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">Aucun résultat trouvé pour "<span x-text="searchQuery"></span>"</p>
+            </div>
+            
+            <div x-show="searchQuery.length === 0" class="py-6">
+                <h3 class="font-semibold mb-3">Suggestions de recherche</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Événements</span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Annonces</span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Commerces</span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Voisins</span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Services</span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">Groupes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Search Modal -->
+    <div x-show="showAdvancedSearch" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4" @click.outside="showAdvancedSearch = false">
+            <div class="p-4 border-b">
+                <h3 class="font-semibold text-lg">Recherche avancée</h3>
+            </div>
+            <div class="p-4">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Mots-clés</label>
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher..." 
+                        class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                        x-model="advancedSearch.keywords"
+                    >
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Catégorie</label>
+                    <select class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                            x-model="advancedSearch.category">
+                        <option value="">Toutes les catégories</option>
+                        <option value="post">Publications</option>
+                        <option value="event">Événements</option>
+                        <option value="sale">Annonces</option>
+                        <option value="business">Commerces</option>
+                        <option value="user">Personnes</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Quartier</label>
+                    <select class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                            x-model="advancedSearch.neighborhood">
+                        <option value="">Tous les quartiers</option>
+                        <option>Plateau, Dakar</option>
+                        <option>Mermoz, Dakar</option>
+                        <option>Ouakam, Dakar</option>
+                        <option>Fass, Dakar</option>
+                        <option>Gueule Tapée, Dakar</option>
+                        <option>Almadies, Dakar</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Date</label>
+                    <div class="flex space-x-2">
+                        <input 
+                            type="date" 
+                            class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                            x-model="advancedSearch.startDate"
+                        >
+                        <input 
+                            type="date" 
+                            class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                            x-model="advancedSearch.endDate"
+                        >
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button @click="showAdvancedSearch = false" class="px-4 py-2 text-gray-600 hover:text-gray-800 mr-2">Annuler</button>
+                    <button 
+                        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md"
+                        @click="performAdvancedSearch"
+                    >
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données de test pour la recherche
+        const testSearchData = [
+            { id: 1, title: "Nettoyage collectif du quartier", category: "Événement", type: "event", icon: "fas fa-calendar-alt" },
+            { id: 2, title: "Table à manger + 4 chaises", category: "Annonce", type: "sale", icon: "fas fa-tag" },
+            { id: 3, title: "Boulangerie Ndiaye", category: "Commerce", type: "business", icon: "fas fa-store" },
+            { id: 4, title: "Mamadou Ndiaye", category: "Personne", type: "user", icon: "fas fa-user" },
+            { id: 5, title: "Réunion des voisins", category: "Événement", type: "event", icon: "fas fa-calendar-alt" },
+            { id: 6, title: "Appareil photo vintage", category: "Annonce", type: "sale", icon: "fas fa-tag" },
+            { id: 7, title: "Restaurant Le Djolof", category: "Commerce", type: "business", icon: "fas fa-utensils" },
+            { id: 8, title: "Aïssatou Fall", category: "Personne", type: "user", icon: "fas fa-user" },
+            { id: 9, title: "Marché solidaire", category: "Événement", type: "event", icon: "fas fa-calendar-alt" },
+            { id: 10, title: "Livres divers à donner", category: "Annonce", type: "sale", icon: "fas fa-tag" }
+        ];
+
+        function app() {
+            return {
+                // State management for authentication
+                isLoggedIn: false,
+                isLoading: false,
+                activeTab: 'login',
+                
+                // Login form state
+                loginEmail: '',
+                loginPassword: '',
+                rememberMe: false,
+                
+                // Signup form state
+                signupName: '',
+                signupEmail: '',
+                signupPassword: '',
+                signupConfirmPassword: '',
+                signupNeighborhood: '',
+                termsAccepted: false,
+                
+                // Dashboard state
+                mobileMenuOpen: false,
+                notificationsOpen: false,
+                profileMenuOpen: false,
+                showPostModal: false,
+                showEventModal: false,
+                showSaleModal: false,
+                showDonationModal: false,
+                likedPosts: {
+                    post1: false,
+                    post2: false,
+                    post3: false
+                },
+                
+                // Slider state
+                currentSlide: 0,
+                slideInterval: null,
+                slides: [
+                    'https://images.unsplash.com/photo-1561501878-aabd62634533?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80',
+                    'https://images.unsplash.com/photo-1567599759063-7f9d7b0a2c0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80',
+                    'https://images.unsplash.com/photo-1561501900-3701fa6a0864?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80',
+                    'https://images.unsplash.com/photo-1593692909680-1d8e3370a7a6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80'
+                ],
+                
+                // Nouvel état pour la recherche
+                searchQuery: '',
+                showSearchResults: false,
+                searchResults: [],
+                showMobileSearch: false,
+                showAdvancedSearch: false,
+                advancedSearch: {
+                    keywords: '',
+                    category: '',
+                    neighborhood: '',
+                    startDate: '',
+                    endDate: ''
+                },
+                
+                // Initialize app
+                init() {
+                    // Start the background slider
+                    this.startSlider();
+                    
+                    // Load saved state from localStorage
+                    if (localStorage.getItem('rememberMe')) {
+                        this.loginEmail = localStorage.getItem('loginEmail') || '';
+                        this.rememberMe = true;
+                    }
+                    
+                    // Check if user is logged in
+                    if (localStorage.getItem('isLoggedIn')) {
+                        this.isLoggedIn = true;
+                    }
+                },
+                
+                // Start the background slider
+                startSlider() {
+                    this.slideInterval = setInterval(() => {
+                        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                        this.updateSlider();
+                    }, 5000);
+                },
+                
+                // Update slider display
+                updateSlider() {
+                    const slides = document.querySelectorAll('.slide');
+                    slides.forEach((slide, index) => {
+                        slide.classList.toggle('active', index === this.currentSlide);
+                    });
+                },
+                
+                // Login function
+                login() {
+                    if (!this.loginEmail || !this.loginPassword) {
+                        alert('Veuillez remplir tous les champs');
+                        return;
+                    }
+                    
+                    this.isLoading = true;
+                    
+                    // Simulate API call delay
+                    setTimeout(() => {
+                        this.isLoggedIn = true;
+                        this.isLoading = false;
+                        
+                        // Save to localStorage if "remember me" is checked
+                        if (this.rememberMe) {
+                            localStorage.setItem('loginEmail', this.loginEmail);
+                            localStorage.setItem('rememberMe', true);
+                        }
+                        
+                        localStorage.setItem('isLoggedIn', true);
+                    }, 1500);
+                },
+                
+                // Signup function
+                signup() {
+                    if (!this.signupName || !this.signupEmail || !this.signupPassword || 
+                        !this.signupConfirmPassword || !this.signupNeighborhood) {
+                        alert('Veuillez remplir tous les champs');
+                        return;
+                    }
+                    
+                    if (this.signupPassword !== this.signupConfirmPassword) {
+                        alert('Les mots de passe ne correspondent pas');
+                        return;
+                    }
+                    
+                    if (!this.termsAccepted) {
+                        alert('Veuillez accepter les termes et conditions');
+                        return;
+                    }
+                    
+                    this.isLoading = true;
+                    
+                    // Simulate API call delay
+                    setTimeout(() => {
+                        this.isLoggedIn = true;
+                        this.isLoading = false;
+                        localStorage.setItem('isLoggedIn', true);
+                    }, 2000);
+                },
+                
+                // Logout function
+                logout() {
+                    this.isLoggedIn = false;
+                    this.loginPassword = '';
+                    localStorage.removeItem('isLoggedIn');
+                },
+                
+                // Toggle like for a post
+                toggleLike(postId) {
+                    this.likedPosts[postId] = !this.likedPosts[postId];
+                    localStorage.setItem('likedPosts', JSON.stringify(this.likedPosts));
+                },
+                
+                // Fonction de recherche
+                performSearch() {
+                    if (this.searchQuery.length < 2) {
+                        this.searchResults = [];
+                        return;
+                    }
+                    
+                    // Simuler une recherche avec un délai
+                    setTimeout(() => {
+                        const query = this.searchQuery.toLowerCase();
+                        this.searchResults = testSearchData.filter(item => 
+                            item.title.toLowerCase().includes(query) || 
+                            item.category.toLowerCase().includes(query)
+                        ).slice(0, 5);
+                    }, 300);
+                },
+                
+                // Fonction de recherche avancée
+                performAdvancedSearch() {
+                    // Simuler une recherche avancée
+                    const filters = this.advancedSearch;
+                    let results = [...testSearchData];
+                    
+                    if (filters.keywords) {
+                        const query = filters.keywords.toLowerCase();
+                        results = results.filter(item => 
+                            item.title.toLowerCase().includes(query) || 
+                            item.category.toLowerCase().includes(query)
+                        );
+                    }
+                    
+                    if (filters.category) {
+                        results = results.filter(item => item.type === filters.category);
+                    }
+                    
+                    if (filters.neighborhood) {
+                        // Dans une application réelle, on filtrerait par quartier
+                        results = results.filter(item => true); // Simuler un filtre
+                    }
+                    
+                    this.searchResults = results;
+                    this.showAdvancedSearch = false;
+                    this.showMobileSearch = true;
+                },
+                
+                // Sélection d'un résultat de recherche
+                selectSearchResult(result) {
+                    alert(`Vous avez sélectionné : ${result.title} (${result.category})`);
+                    this.searchQuery = '';
+                    this.showSearchResults = false;
+                    this.showMobileSearch = false;
+                },
+                
+                // Simulate backend API call
+                async sendDataToServer(endpoint, data) {
+                    // In a real app, this would be an actual fetch request to a PHP backend
+                    console.log(`Sending data to ${endpoint}:`, data);
+                    
+                    // Simulate network delay
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Simulate server response
+                    return {
+                        status: 'success',
+                        message: 'Operation completed successfully',
+                        data: {
+                            id: Math.floor(Math.random() * 1000),
+                            ...data
+                        }
+                    };
+                },
+                
+                // Simulate form submission
+                async submitForm(formType, formData) {
+                    try {
+                        // Show loading state
+                        
+                        // Send to backend
+                        const response = await this.sendDataToServer(`/api/${formType}`, formData);
+                        
+                        // Handle response
+                        if (response.status === 'success') {
+                            alert('Votre ' + formType + ' a été publié avec succès!');
+                            this[`show${formType.charAt(0).toUpperCase() + formType.slice(1)}Modal`] = false;
+                        } else {
+                            alert('Erreur: ' + (response.message || 'Une erreur est survenue'));
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Une erreur est survenue lors de la communication avec le serveur');
+                    } finally {
+                        // Hide loading state
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
