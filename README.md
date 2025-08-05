@@ -38,3 +38,8 @@ git clone https://github.com/Ndeye-Astou/RESOCITY.git
 # 2. Ouvrir dans le navigateur
 cd RESOCITY
 ouvrir index.html (double clic ou via VSCode Live Server)
+
+👩‍💻 Ndèye Astou Kébé
+💼 Fondatrice de Tinova Digital
+🗨️ L’innovation au service du digital
+
